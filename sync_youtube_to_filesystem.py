@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+
+"""
+Synchronizes a YouTube playlist with a directory in the filesystem.
+
+Supports YouTube playlists with
+    * [Deleted Video] items and
+    * the same video multiple times.
+"""
+
 import codecs
 import os.path
 import re
@@ -5,6 +15,7 @@ import sys
 import youtube_dl
 from youtube_dl.utils import DownloadError
 from youtube_dl.utils import sanitize_filename
+
 
 def main(args):
     # Parse arguments
@@ -80,6 +91,7 @@ def main(args):
             ordering_file.write(cur_filename)
             ordering_file.write(u'\n')
 
+# ------------------------------------------------------------------------------
 
 def extract_youtube_playlist_info(youtube_playlist_url):
     """
