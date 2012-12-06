@@ -13,6 +13,7 @@ import os.path
 import re
 import sys
 import youtube_dl
+from youtube_dl import FFmpegExtractAudioPP
 from youtube_dl.utils import DownloadError
 from youtube_dl.utils import sanitize_filename
 
@@ -27,7 +28,9 @@ def main(args):
     
     # Default settings
     restrictfilenames = False
-    writeinfojson = True
+    # (TODO: Enable again when it plays nicely with 'extract_audio_for_itunes')
+    writeinfojson = False
+    extract_audio_for_itunes = True
     
     # Locate all videos already in the filesystem
     ordering_filepath = os.path.join(output_dirpath, '.ordering')
@@ -50,37 +53,56 @@ def main(args):
         filesystem_filenames = []
     
     # Prepare downloader
-    filename_template = u'%(title)s.%(ext)s'
+    video_filename_template = u'%(title)s.%(ext)s'
     downloader = youtube_dl.FileDownloader({
         'outtmpl': os.path.join(
             # (Be robust against output_dirpath containing %)
             output_dirpath.replace('%', '%%'),
-            filename_template),
+            video_filename_template),
         'restrictfilenames': restrictfilenames,
         'writeinfojson': writeinfojson,
     })
+    if not extract_audio_for_itunes:
+        final_filename_template = video_filename_template
+    else:
+        final_filename_template = video_filename_template.replace(u'%(ext)s', u'm4a')
+        downloader.add_post_processor(FFmpegExtractAudioPP(
+            preferredcodec='m4a',   # iTunes compatible.
+            preferredquality=None,  # default audio quality
+            keepvideo=False))
     
     # Locate all videos in the playlist
     video_infos = extract_youtube_playlist_info(playlist_url)
     playlist_filenames = []
     for cur_info in video_infos:
-        cur_filename = sanitize_filename(filename_template % cur_info, restrictfilenames)
+        cur_filename = sanitize_filename(final_filename_template % cur_info, restrictfilenames)
         playlist_filenames.append(cur_filename)
     
     # Download videos to filesystem that are missing
     for cur_info in video_infos:
-        cur_filename = sanitize_filename(filename_template % cur_info, restrictfilenames)
+        cur_filename = sanitize_filename(final_filename_template % cur_info, restrictfilenames)
         if not os.path.exists(os.path.join(output_dirpath, cur_filename)):
+            # Download (and optionally extract the audio)
             downloader.process_info(cur_info)
+            
+            # Verify downloaded
+            if not os.path.exists(os.path.join(output_dirpath, cur_filename)):
+                raise ValueError('Could not locate downloaded video: %s' % cur_filename)
     
     # Remove filesystem files not in playlist
     playlist_filename_set = set(playlist_filenames)
     for cur_filename in filesystem_filenames:
         if cur_filename not in playlist_filename_set:
-            # Remove video
-            os.remove(os.path.join(output_dirpath, cur_filename))
+            # Remove video (if present)
+            video_filepath = os.path.join(output_dirpath, cur_filename)
+            if os.path.exists(video_filepath):
+                os.remove(video_filepath)
             
             # Remove info json (if present)
+            # TODO: This is not the correct path for the info json file
+            #       if 'extract_audio_for_itunes' is True.
+            #       (The info json will be proceded by the *video* extension,
+            #        instead of the output audio file extension.)
             infojson_filepath = os.path.join(output_dirpath, cur_filename + u'.info.json')
             if os.path.exists(infojson_filepath):
                 os.remove(infojson_filepath)
