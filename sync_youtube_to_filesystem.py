@@ -82,12 +82,13 @@ def main(args):
     for cur_info in video_infos:
         cur_filename = sanitize_filename(final_filename_template % cur_info, restrictfilenames)
         if not os.path.exists(os.path.join(output_dirpath, cur_filename)):
-            # Download (and optionally extract the audio)
-            downloader.process_info(cur_info)
-            
-            # Verify downloaded
-            if not os.path.exists(os.path.join(output_dirpath, cur_filename)):
-                raise ValueError('Could not locate downloaded video: %s' % cur_filename)
+            if not cur_info.get('deleted', False):
+                # Download (and optionally extract the audio)
+                downloader.process_info(cur_info)
+                
+                # Verify downloaded
+                if not os.path.exists(os.path.join(output_dirpath, cur_filename)):
+                    raise ValueError('Could not locate downloaded video: %s' % cur_filename)
     
     # Remove filesystem files not in playlist
     playlist_filename_set = set(playlist_filenames)
