@@ -5,17 +5,19 @@ Manipulation is performed through the use of Apple Events sent to the iTunes
 application. Therefore the iTunes application will be launched if necessary
 (in the background). This is a lot safer than editing the iTunes Library XML
 file directly, but has the disadvantage of only working on OS X.
+
+Requires:
+* Mac OS X 10.7 or later
+* iTunes 10 or later
+* Python 2.6 or later (but not Python 3)
 """
 
 from contextlib import contextmanager
 import json
 import os
 import os.path
-import subprocess
-try:
-    from subprocess import DEVNULL
-except:
-    DEVNULL = open(os.devnull, 'rwb')
+import subprocess2 as subprocess
+from subprocess2 import DEVNULL
 
 
 def playlist_exists(playlist_name):
