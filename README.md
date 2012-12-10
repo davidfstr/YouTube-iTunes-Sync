@@ -1,8 +1,8 @@
 # YouTube-iTunes Sync 1.0
 
-Synchronizes a YouTube playlist with an iTunes playlist.
+Synchronizes a YouTube music playlist with iTunes. Once synchronized with iTunes they become available on your iPhone and other Apple devices.
 
-This is useful if you have a YouTube playlist full of music or music videos. Once synchronized with iTunes they become available on your iPhone and other Apple devices.
+This is useful if you have a YouTube playlist full of music or music videos and want to be able to play them anywhere.
 
 ## Requirements
 
