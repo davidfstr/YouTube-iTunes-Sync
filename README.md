@@ -4,6 +4,11 @@ Synchronizes a YouTube music playlist with iTunes. Once synchronized with iTunes
 
 This is useful if you have a YouTube playlist full of music or music videos and want to be able to play them anywhere.
 
+**NOTE:** This project is no longer being maintained.
+It is recommended that playlists be downloaded manually with
+[youtube-dl](https://github.com/davidfstr/YouTube-iTunes-Sync/wiki/Downloading-a-playlist-with-youtube-dl).
+Then syncing with iTunes is sufficiently easy to do by hand.
+
 ## Requirements
 
 * Mac OS X 10.7+ (Lion)
